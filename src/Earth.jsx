@@ -1,6 +1,6 @@
 import { useTexture } from '@react-three/drei'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
 import Moon from './Moon'
 
 const Earth = ({ displacementScale }) => {
@@ -14,14 +14,17 @@ const Earth = ({ displacementScale }) => {
             '/assets/earth_displacement.jpg',
         ])
 
-    useFrame(() => {
-        earthRef.current.rotation.y += 0.002
-    })
+    // Calculate Earth's orbit around the Sun
+    useFrame(({ clock }) => {
+        const time = clock.getElapsedTime();
+        earthRef.current.position.x = Math.sin(time) * 18;
+        earthRef.current.position.z = Math.cos(time) * 18;
+        earthRef.current.rotation.y += 0.002;
+    });
 
     return (
-        <group>
-            <mesh receiveShadow ref={earthRef}>
-                {/* Radius , X-axis , Y-axis */}
+        <group ref={earthRef}>
+            <mesh receiveShadow>
                 <sphereGeometry args={[1, 32, 32]} />
                 <meshPhongMaterial
                     map={earthTexture}
